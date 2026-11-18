@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Library Manager</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <div class="brand">📚 Library Manager <span id="roleBadge" class="role">Guest (view only)</span></div>
+    <nav>
+      <button class="tab active" data-tab="dashboard">Dashboard</button>
+      <button class="tab" data-tab="books">Books</button>
+      <button class="tab admin-only hidden" data-tab="members">Members</button>
+      <button class="tab admin-only hidden" data-tab="circulation">Issue / Return</button>
+      <button class="tab" data-tab="login" id="loginBtn">Admin login</button>
+      <button class="tab hidden" id="logoutBtn">Logout</button>
+      <button class="tab" id="themeBtn">☀️ Light</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="section active">
+    <div class="grid-4">
+      <button class="card stat s-all" data-stat="all">
+        <div class="num" id="s-total">0</div><div class="label">Total books</div>
+      </button>
+      <button class="card stat s-avail" data-stat="available">
+        <div class="num" id="s-avail">0</div><div class="label">Available</div>
+      </button>
+      <button class="card stat s-loan" data-stat="onloan">
+        <div class="num" id="s-loan">0</div><div class="label">On loan</div>
+      </button>
+      <button class="card stat s-over" data-stat="overdue">
+        <div class="num" id="s-over">0</div><div class="label">Overdue</div>
+      </button>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <div class="head-row">
+        <h2>Find books by shelf</h2>
+        <span class="muted">Click a shelf to see its books</span>
+      </div>
+      <div id="shelfList" class="shelf-grid"></div>
+    </div>
+  </section>
+
+  <!-- BOOKS -->
+  <section id="books" class="section">
+    <div class="card admin-only hidden">
+      <h2>Add a book</h2>
+      <form id="addBookForm">
+        <label>Title <input name="title" required></label>
+        <label>Author <input name="author" required></label>
+        <label>ISBN <input name="isbn"></label>
+        <label>Shelf location <input name="location" list="locList" placeholder="e.g. Floor 2 - Shelf C1" required></label>
+        <button class="btn" type="submit">Add book</button>
+      </form>
+      <div class="actions-row">
+        <button class="btn ghost" id="sampleBtn" type="button">Add 12 sample books</button>
+        <span class="muted">Adds only sample books that are not already in the catalogue.</span>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <div class="head-row">
+        <h2>Catalogue <span id="bookCount" class="muted"></span></h2>
+        <div class="tools">
+          <input id="search" placeholder="Search title, author, ISBN or location">
+          <select id="locationFilter"><option value="">All locations</option></select>
+          <button class="btn ghost" id="clearBtn" type="button">Clear</button>
+        </div>
+      </div>
+
+      <div class="chips">
+        <button class="chip active" data-filter="all">All</button>
+        <button class="chip" data-filter="available">Available</button>
+        <button class="chip" data-filter="onloan">On loan</button>
+        <button class="chip" data-filter="overdue">Overdue</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Title</th><th>Author</th><th>Location</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody id="bookRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- MEMBERS (admin only) -->
+  <section id="members" class="section admin-only hidden">
+    <div class="card">
+      <h2>Register a member</h2>
+      <form id="addMemberForm">
+        <label>Type
+          <select name="type">
+            <option value="Student">Student (3 books, 14 days)</option>
+            <option value="Faculty">Faculty (5 books, 30 days)</option>
+          </select>
+        </label>
+        <label>Name <input name="name" required></label>
+        <button class="btn" type="submit">Add member</button>
+      </form>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <h2>Members</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Name</th><th>Type</th><th>Books issued</th><th></th></tr>
+          </thead>
+          <tbody id="memberRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ISSUE / RETURN (admin only) -->
+  <section id="circulation" class="section admin-only hidden">
+    <div class="grid-2">
+      <div class="card">
+        <h2>Issue a book</h2>
+        <form id="issueForm" class="stack">
+          <label>Book <select id="issueBook"></select></label>
+          <label>Member <select id="issueMember"></select></label>
+          <button class="btn" type="submit">Issue book</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Return a book</h2>
+        <form id="returnForm" class="stack">
+          <label>Book on loan <select id="returnBook"></select></label>
+          <button class="btn" type="submit">Return book</button>
+          <p class="muted">Fine is Rs. 5 per late day.</p>
+        </form>
+      </div>
+    </div>
+        <div class="card" style="margin-top:20px">
+      <div class="head-row">
+        <h2>Books on loan</h2>
+        <span class="muted">Timers update every second</span>
+      </div>
+      <div id="loanList"></div>
+    </div>
+  </section>
+
+  <!-- ADMIN LOGIN -->
+  <section id="login" class="section">
+    <div class="card login-card">
+      <h2>Admin login</h2>
+      <form id="loginForm" class="stack">
+        <label>Admin password <input type="password" name="password" required></label>
+        <button class="btn" type="submit">Log in</button>
+      </form>
+      <p class="muted">Visitors can browse the catalogue. Only the admin can make changes.</p>
+    </div>
+  </section>
+
+</main>
+
+<datalist id="locList"></datalist>
+<div id="toast" class="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
